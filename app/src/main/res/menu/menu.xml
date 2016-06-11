@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menuSuggestionUpdate"
+        android:title="Update Suggestion Data" />
+    <item
+        android:id="@+id/menuSuggestionInsert"
+        android:title="Insert Suggestion Data" />
+    <item
+        android:id="@+id/menuSuggestionClear"
+        android:title="Clear Suggestion Database" />
+</menu>
