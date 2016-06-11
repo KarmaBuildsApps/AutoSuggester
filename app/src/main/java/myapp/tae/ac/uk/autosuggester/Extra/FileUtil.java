@@ -11,24 +11,30 @@ import android.support.v4.app.ActivityCompat;
 
 import java.net.URISyntaxException;
 
+import myapp.tae.ac.uk.autosuggester.Constants.Constants;
+
 /**
  * Created by Karma on 09/06/16.
  */
 public class FileUtil {
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE
     };
-    public static void verifyStoragePermissions(Activity activity) {
+    public static void verifyStoragePermissions(Activity activity, int requestCode) {
         int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                     activity,
                     PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
+                    requestCode
             );
         }
+    }
+
+    public static boolean isReadGranted(Activity activity){
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return permission == PackageManager.PERMISSION_GRANTED;
     }
     public static String getPath(Context context, Uri uri) throws URISyntaxException {
         if ("content".equalsIgnoreCase(uri.getScheme())) {

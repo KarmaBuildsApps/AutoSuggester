@@ -83,7 +83,6 @@ public class SuggestionData extends Observable implements AutoSuggestionDataCont
             try {
                 String fileNam = params[0];
                 if (reference.get() != null) {
-                    File sdcard = Environment.getExternalStorageDirectory();
                     File file = new File(fileNam);
                     BufferedReader br = new BufferedReader(new FileReader(file));
                     ArrayList<String> suggestionWordsFromFile = new ArrayList<>();
@@ -97,11 +96,15 @@ public class SuggestionData extends Observable implements AutoSuggestionDataCont
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
-                setChanged();
-                notifyObservers(Constants.DATA_CHANGE_COMPLETE);
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            setChanged();
+            notifyObservers(Constants.DATA_CHANGE_COMPLETE);
         }
     }
 
@@ -115,5 +118,6 @@ public class SuggestionData extends Observable implements AutoSuggestionDataCont
             word = itWords.next();
             dbHelper.insertSuggestion(word);
         }
+        dbHelper.getWritableDatabase().close();
     }
 }

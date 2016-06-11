@@ -3,6 +3,9 @@ package myapp.tae.ac.uk.autosuggester;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.v4.content.AsyncTaskLoader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -17,6 +20,7 @@ import android.widget.ViewSwitcher;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import myapp.tae.ac.uk.autosuggester.Constants.Constants;
 import myapp.tae.ac.uk.autosuggester.Extra.FileUtil;
@@ -32,8 +36,9 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
     private MainPresenter presenter;
     private ViewSwitcher viewSwitcher;
     private Button clear, update, insert;
-    private ProgressBar progressBar;
+    private ProgressBar progressBar, autoCompleteProgressBar;
     private boolean isProgressBarShown = false;
+    private String tempFilePath = "";
 
 
     @Override
@@ -42,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
         setContentView(R.layout.activity_main);
         initiateViews();
         presenter = new MainPresenter(MainActivity.this, this);
+        autoComplete.setLoadingIndicator(autoCompleteProgressBar);
         adapter = new AdapterAutoComplete(this, presenter.getSuggestions());
         autoComplete.setAdapter(adapter);
     }
@@ -52,10 +58,10 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
             public void onClick(View v) {
                 switch (v.getId()){
                     case R.id.buttonInsert:
-                        selectAndAddFileData(Constants.INSERT_DATA);
+                            selectAndAddFileData(Constants.INSERT_DATA);
                         break;
                     case R.id.buttonUpdate:
-                        selectAndAddFileData(Constants.UPDATE_DATA);
+                            selectAndAddFileData(Constants.UPDATE_DATA);
                         break;
                     case R.id.buttonClear:
                         presenter.clearSuggestionDatabase();
@@ -75,12 +81,18 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
         autoComplete = (CustomAutoComplete) findViewById(R.id.autoSearch);
         viewSwitcher = (ViewSwitcher) findViewById(R.id.viewSwitcher);
         progressBar = (ProgressBar) findViewById(R.id.progressbar);
+        autoCompleteProgressBar = (ProgressBar) findViewById(R.id.autocompleteProgressBar);
         insert = (Button) findViewById(R.id.buttonInsert);
         update = (Button) findViewById(R.id.buttonUpdate);
         clear = (Button) findViewById(R.id.buttonClear);
         insert.setOnClickListener(buttonClickListener);
         update.setOnClickListener(buttonClickListener);
         clear.setOnClickListener(buttonClickListener);
+    }
+
+    @Override
+    public void updateAdapterData() {
+        adapter.setAutoSuggestions(presenter.getSuggestions());
     }
 
     @Override
@@ -104,8 +116,10 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
 
     @Override
     public void showButtons() {
-        if(isProgressBarShown)
-        viewSwitcher.showPrevious();
+        if(isProgressBarShown) {
+            viewSwitcher.showPrevious();
+            adapter.setAutoSuggestions(presenter.getSuggestions());
+        }
     }
 
     @Override
@@ -122,17 +136,43 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
             String filePath = null;
             try {
                 filePath = FileUtil.getPath(this, data.getData());
-                FileUtil.verifyStoragePermissions(this);
-                switch (requestCode){
-                    case Constants.INSERT_DATA:
-                        presenter.insertSuggestionToDatabase(filePath);
-                        break;
-                    case Constants.UPDATE_DATA:
-                        presenter.updateSuggestionDatabase(filePath);
+                if(Build.VERSION.SDK_INT>=23){
+                    tempFilePath = filePath;
+                    FileUtil.verifyStoragePermissions(this, requestCode);
+                }else {
+                    switch (requestCode) {
+                        case Constants.INSERT_DATA:
+                            presenter.insertSuggestionToDatabase(filePath);
+                            break;
+                        case Constants.UPDATE_DATA:
+                            presenter.updateSuggestionDatabase(filePath);
+                    }
                 }
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==Constants.INSERT_DATA){
+            presenter.insertSuggestionToDatabase(tempFilePath);
+        }else if(requestCode== Constants.UPDATE_DATA){
+            presenter.updateSuggestionDatabase(tempFilePath);
+        }
+    }
+
+    public class DatabaseLoader extends AsyncTaskLoader<ArrayList<String>>{
+
+        public DatabaseLoader(Context context) {
+            super(context);
+        }
+
+        @Override
+        public ArrayList<String> loadInBackground() {
+            return presenter.getSuggestions();
         }
     }
 }

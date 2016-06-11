@@ -44,12 +44,11 @@ public class SuggestionDatabase extends SQLiteOpenHelper {
     }
 
     public void insertSuggestion(String suggestion) {
-        ContentValues c = new ContentValues();
-        c.put(DatabaseContract.SuggestionEntries.COLUMN_WORDS, suggestion);
+        ContentValues values = new ContentValues();
+        values.put(DatabaseContract.SuggestionEntries.COLUMN_WORDS, suggestion);
 
         SQLiteDatabase db = getWritableDatabase();
-        db.insert(DatabaseContract.SuggestionEntries.TABLE_NAME, null, c);
-        db.close();
+        db.insert(DatabaseContract.SuggestionEntries.TABLE_NAME, null, values);
     }
 
     public ArrayList<String> getSuggestions(String searchWord) {
@@ -67,7 +66,7 @@ public class SuggestionDatabase extends SQLiteOpenHelper {
         }
         if (cursor.moveToFirst()) {
             do {
-                String word = cursor.getColumnName(cursor.getColumnIndex(DatabaseContract.SuggestionEntries.COLUMN_WORDS));
+                String word = cursor.getString(cursor.getColumnIndex(DatabaseContract.SuggestionEntries.COLUMN_WORDS));
                 suggestions.add(word);
             } while (cursor.moveToNext());
         }

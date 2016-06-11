@@ -36,6 +36,7 @@ public class MainPresenter implements Observer {
 
     public void clearSuggestionDatabase() {
         dataController.clearDatabase();
+        view.updateAdapterData();
     }
 
     public ArrayList<String> getSuggestions() {
@@ -46,6 +47,7 @@ public class MainPresenter implements Observer {
     public void update(Observable observable, Object data) {
         if((int) data==Constants.DATA_CHANGE_COMPLETE){
             view.showButtons();
+            view.updateAdapterData();
         }
     }
 }

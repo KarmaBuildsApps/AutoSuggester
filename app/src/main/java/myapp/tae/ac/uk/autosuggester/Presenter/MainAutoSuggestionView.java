@@ -10,4 +10,6 @@ public interface MainAutoSuggestionView {
     void showButtons();
 
     void showProgressBar();
+
+    void updateAdapterData();
 }
