@@ -50,4 +50,8 @@ public class MainPresenter implements Observer {
             view.updateAdapterData();
         }
     }
+
+    public void setFileDataSeparator(CharSequence fileDataSeparator) {
+        dataController.setSeparator(fileDataSeparator.toString());
+    }
 }

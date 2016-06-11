@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menuSuggestionUpdate"
-        android:title="Update Suggestion Data" />
+        android:id="@+id/menuSetSeparator"
+        android:title="Set Separator" />
     <item
-        android:id="@+id/menuSuggestionInsert"
-        android:title="Insert Suggestion Data" />
-    <item
-        android:id="@+id/menuSuggestionClear"
-        android:title="Clear Suggestion Database" />
+        android:id="@+id/menuSetting"
+        android:title="Setting" />
 </menu>

@@ -2,10 +2,12 @@ package myapp.tae.ac.uk.autosuggester;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.content.AsyncTaskLoader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -13,6 +15,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -102,6 +106,38 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menuSetSeparator:
+                showSeparatorDialogOption();
+                break;
+            case R.id.menuSetting:
+                Toast.makeText(this, "Setting Clicked", Toast.LENGTH_LONG).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showSeparatorDialogOption() {
+        AlertDialog.Builder separatorDialog = new AlertDialog.Builder(this);
+        separatorDialog.setTitle("Set Separator");
+        separatorDialog.setMessage("Enter Separator Like | or , etc.");
+        final EditText etSeparator = new EditText(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        etSeparator.setLayoutParams(layoutParams);
+        separatorDialog.setView(etSeparator);
+        separatorDialog.setPositiveButton("SET", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                CharSequence separator = etSeparator.getText();
+                presenter.setFileDataSeparator(separator);
+            }
+        });
+        separatorDialog.show();
+    }
+
+    @Override
     public void selectAndAddFileData(int requestCode) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("text/plain");
@@ -119,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements MainAutoSuggestio
         if(isProgressBarShown) {
             viewSwitcher.showPrevious();
             adapter.setAutoSuggestions(presenter.getSuggestions());
+            isProgressBarShown = false;
         }
     }
 
